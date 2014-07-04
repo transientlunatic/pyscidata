@@ -23,7 +23,7 @@ test_requirements = [
 ]
 
 setup(
-    name='data-loaders',
+    name='pyscidata',
     version='0.0.0',
     description='Python Boilerplate contains all the boilerplate you need to create a Python package.',
     long_description=readme + '\n\n' + history,
@@ -31,10 +31,11 @@ setup(
     author_email='mail@daniel-williams.co.uk',
     url='https://github.com/transientlunatic/data-loaders',
     packages=[
-        'data-loaders',
+        'pyscidata',
+        'pyscidata.solar'
     ],
-    package_dir={'data-loaders':
-                 'data-loaders'},
+    package_dir={'pyscidata':
+                 'pyscidata'},
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
