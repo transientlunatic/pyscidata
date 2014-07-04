@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-test_data-loaders
+test_pyscidata
 ----------------------------------
 
-Tests for `data-loaders` module.
+Tests for `pyscidata` module.
 """
 
 import unittest
 
-from data-loaders import data-loaders
+from pyscidata import pyscidata
 
 
 class TestData-loaders(unittest.TestCase):

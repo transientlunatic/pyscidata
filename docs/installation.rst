@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install data-loaders
+    $ easy_install pyscidata
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv data-loaders
-    $ pip install data-loaders
+    $ mkvirtualenv pyscidata
+    $ pip install pyscidata

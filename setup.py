@@ -29,7 +29,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author='Daniel Williams',
     author_email='mail@daniel-williams.co.uk',
-    url='https://github.com/transientlunatic/data-loaders',
+    url='https://github.com/transientlunatic/pyscidata',
     packages=[
         'pyscidata',
         'pyscidata.solar'
@@ -40,7 +40,7 @@ setup(
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='data-loaders',
+    keywords='pyscidata',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

@@ -25,7 +25,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 data-loaders tests
+	flake8 pyscidata tests
 
 test:
 	python setup.py test
@@ -34,15 +34,15 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source data-loaders setup.py test
+	coverage run --source pyscidata setup.py test
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/data-loaders.rst
+	rm -f docs/pyscidata.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ data-loaders
+	sphinx-apidoc -o docs/ pyscidata
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
