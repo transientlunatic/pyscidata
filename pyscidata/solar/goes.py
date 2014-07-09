@@ -14,8 +14,12 @@ class GOESLightcurve(Lightcurve):
     """
     This class is designed to simplify the handling of GOES data.
     """
-    
-    def __init__(self, start, end):
+    title="Title"
+    detrended=False
+    #detrend_method
+    def __init__(self, start, end, **kwargs):
+        if "title" in kwargs:
+            self.title=kwargs["title"]
         uris = self.get_url_for_date_range(start, end)
         filepaths = self._download(uris)
         header, data = self._parse_fits(filepaths)
@@ -28,6 +32,11 @@ class GOESLightcurve(Lightcurve):
         start_i = data.index.searchsorted(parse_time(start))
         end_i = data.index.searchsorted(parse_time(end))
         self.import_data(data[start_i:end_i], meta)
+        
+        self.cts = self.time_seconds()
+        if "default" in kwargs:
+            self.default = kwargs["default"]
+            self.clc=np.array(self.data[kwargs["default"]])
 
     def _parse_fits(self, filepaths):
         """Parses a GOES FITS file from
