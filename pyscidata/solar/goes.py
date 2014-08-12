@@ -23,7 +23,9 @@ class GOESLightcurve(Lightcurve):
     title="Title"
     detrended=False
     tags = {}
-    #detrend_method
+    colors = {'xrsa':'#9d261d', 'xrsb':'#049cdb'}
+    plot_log = {'xrsa':True, 'xrsb':True}
+    
     def __init__(self, start, end, **kwargs):
         if "title" in kwargs:
             self.title=kwargs["title"]
@@ -96,8 +98,9 @@ class GOESLightcurve(Lightcurve):
             times = [datetime.utcfromtimestamp(seconds_from_start[s]/1000) 
                      for s in range(len(seconds_from_start))]
             
-            file_data = pd.DataFrame({'xrsa': newxrsa,
-                          'xrsb': newxrsb}, index=times)
+            file_data = pd.DataFrame({'xrsb': newxrsa,
+                          'xrsa': newxrsb}, index=times)
+            # Yes, this is indeed the way to do it. :/
             file_data = file_data.replace(to_replace=aavg.missing_value, value=np.nan)
 
             # Parse the header information for each of the columns
@@ -355,8 +358,8 @@ class GOESLightcurve(Lightcurve):
 
         return None
 
-    def plot_tags(self, ax, column, labelcolumn):
-        for tag in self.tags:
+    def plot_tags(self, ax, column, labelcolumn, **kwargs):
+        if "tag" in kwargs:
             tags = self.tags[tag]
             color = ax._get_lines.color_cycle
             ccolor=next(color)
@@ -365,6 +368,16 @@ class GOESLightcurve(Lightcurve):
                 peak = flare[column]
                 text = str(flare[labelcolumn])
                 self._add_line(ax, peak, text, color=ccolor)
+        else:
+            for tag in self.tags:
+                tags = self.tags[tag]
+                color = ax._get_lines.color_cycle
+                ccolor=next(color)
+                for i in range(len(tags)):
+                    flare = tags.ix[i]
+                    peak = flare[column]
+                    text = str(flare[labelcolumn])
+                    self._add_line(ax, peak, text, color=ccolor)
 
     def goes_class(self, energy):
         energye = int(floor(log10(energy)))
