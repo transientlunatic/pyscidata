@@ -15,6 +15,7 @@ from netCDF4 import *
 from dateutil import parser
 from math import floor, log10
 import copy
+import sys
 
 class GOESLightcurve(Lightcurve):
     """
@@ -40,6 +41,7 @@ class GOESLightcurve(Lightcurve):
             header, data = self._parse_fits(filepaths)
         elif self.cadence == "1min":
             uris = self.get_url_for_date_range_noaa(start, end)
+    
             filepaths = self._download(uris)
             header, data = self._parse_cdf(filepaths)
         meta = {}
@@ -48,8 +50,11 @@ class GOESLightcurve(Lightcurve):
         #    for entry in goes.header:
         #        meta[column][entry] = goes.meta[entry]
 
-        start_i = data.index.searchsorted(parse_time(start))
-        end_i = data.index.searchsorted(parse_time(end))
+        start_i = data.index.asof(start)#data.index.searchsorted(parse_time(start))
+        end_i = data.index.asof(parse_time(end))#data.index.searchsorted(parse_time(end))
+        print start, end
+        print data.index[0]
+        print start_i, end_i
         self.import_data(data[start_i:end_i], meta)
 
         self._get_hek_flares(start, end)
@@ -61,9 +66,17 @@ class GOESLightcurve(Lightcurve):
 
     def __getitem__(self, key):
         curve = copy.deepcopy(self)
+        print type(key)
+        if isinstance(key, slice):
+            if isinstance(key[0], str):
+                print "stringy keys"
+                key[0] = self.time_to_index(key[0])
+                key[1] = self.time_to_index(key[1])
+            
         curve.data = curve.data[key]
         curve.highlight = curve.highlight[key]
         curve.cts = curve.time_seconds()
+
         if self.default:
             curve.clc=np.array(curve.data[self.default])
         return curve
@@ -89,8 +102,8 @@ class GOESLightcurve(Lightcurve):
             xrsb[xrsb == -99999] = nan
             xrsa[xrsa == -99999] = nan
 
-            newxrsa = xrsa.byteswap().newbyteorder()
-            newxrsb = xrsb.byteswap().newbyteorder()
+            newxrsa = xrsa#.byteswap().newbyteorder()
+            newxrsb = xrsb#.byteswap().newbyteorder()
 
             seconds_from_start = f.variables['time_tag']
             seconds_from_start = np.array(seconds_from_start[:])
@@ -116,7 +129,7 @@ class GOESLightcurve(Lightcurve):
                 header['xrsb'][name] = bavg.getncattr(name)
 
             data = data.append(file_data)
-
+            
         return header, data
 
     def _get_hek_flares(self, start, end):
@@ -265,21 +278,25 @@ class GOESLightcurve(Lightcurve):
             end = args[0].end()
         elif len(args) == 2:
             start = parse_time(args[0])
+            start = start.replace(hour=0, minute=0, second=0, microsecond=0)
             end = parse_time(args[1])
+            end = end.replace(hour=0, minute=0, second=0, microsecond=0)
         if end < start:
             raise ValueError('start time > end time')
 
         length = rd.relativedelta(end, start)
-        length = float(length.months) + float(length.days)/float(31) 
-        length = int(math.ceil(length))
+        if length.days <1:
+            length = int(1)
+        else:
+            length = float(length.months) + float(length.days)/float(31) 
+            length = int(math.ceil(length))
 
         days_back = start.day
         start = start + rd.relativedelta(days=-(days_back-1))
         urls = []
-        for month in range(length):
+        for month in xrange(length):
             file_start = start + rd.relativedelta(months = month ) 
             file_end = start + rd.relativedelta(months = month+1) + rd.relativedelta(days=-1)
-            
             # find out which satellite and datatype to query from the query times
             sat_num = self.get_goes_sat_num(file_start, file_end)
             base_url = 'http://satdat.ngdc.noaa.gov/sem/goes/data/new_avg/'
@@ -314,7 +331,9 @@ class GOESLightcurve(Lightcurve):
             end = args[0].end()
         elif len(args) == 2:
             start = parse_time(args[0])
+            start.replace(hour=0, minute=0, second=0, microsecond=0)
             end = parse_time(args[1])
+            end.replace(hour=0, minute=0, second=0, microsecond=0)
         if end < start:
             raise ValueError('start time > end time')
 
@@ -360,11 +379,13 @@ class GOESLightcurve(Lightcurve):
 
     def plot_tags(self, ax, column, labelcolumn, **kwargs):
         if "tag" in kwargs:
-            tags = self.tags[tag]
-            color = ax._get_lines.color_cycle
-            ccolor=next(color)
-            for i in range(len(tags)):
-                flare = tags.ix[i]
+          tag = kwargs["tag"]
+          tags = self.tags[tag]
+          color = ax._get_lines.color_cycle
+          ccolor=next(color)
+          print tag
+          for tag in tags.iterrows():
+                flare = tag[1]
                 peak = flare[column]
                 text = str(flare[labelcolumn])
                 self._add_line(ax, peak, text, color=ccolor)
