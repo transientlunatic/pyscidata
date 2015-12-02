@@ -66,10 +66,8 @@ class GOESLightcurve(Lightcurve):
 
     def __getitem__(self, key):
         curve = copy.deepcopy(self)
-        print type(key)
         if isinstance(key, slice):
             if isinstance(key.start, str):
-                print "stringy keys"
                 key.start = self.time_to_index(key.start)
                 key.end = self.time_to_index(key.start)
             

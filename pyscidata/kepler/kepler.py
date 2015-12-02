@@ -16,7 +16,7 @@ class KeplerLightcurve(object, Lightcurve):
 
     quarters = {
         #0 : [datetime.datetime(2009,5,2,0,55,0), datetime.datetime(2009,5,11,17,51,30)],
-        1 : [datetime.datetime(2009,5,13,0,15,0), datetime.datetime(2009,6,15,11,32,55)],
+        1 : [datetime.datetime(2009,5,13,0,15,0), datetime.datetime(2009,6,15,11,32,57)],
         2 : [datetime.datetime(2009,6,20,0,25,12), datetime.datetime(2009,9,16,23,9,27)],
         3 : [datetime.datetime(2009,9,18,17,19,58), datetime.datetime(2009,12,16,23,55,6)],
         4 : [datetime.datetime(2009,12,19,21,4,1), datetime.datetime(2010,3,19,16,53,28)]
@@ -32,9 +32,10 @@ class KeplerLightcurve(object, Lightcurve):
         end = data.index.searchsorted(t[1].datetime)
         self.import_data(data[start:end], meta)
         self.title = title
+        #print self.data.index[0].value[:-5]
         self.kic = kic
         self.clc = np.array(self.data['pdcsap_flux_norm'])
-        self.cts = (Time(self.data.index, format='datetime', scale='utc').jd - 2454833.0)*3600*24
+        self.cts = (Time(self.data.index.astype(datetime.datetime), format='datetime',  scale='utc').jd - 2454833.0)*3600*24
 
     def identity_string(self):
         """
